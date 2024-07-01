@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  postgres_auth_test: #use this name in the adminer login screen server
+    image: postgres:13.1
+    container_name: postgres_auth_test
+    restart: "no"
+    env_file:
+      - .env.test
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5801:5432
+
+  adminer_auth_test:
+    image: adminer
+    depends_on:
+      - postgres_auth_test
+    restart: always
+    env_file:
+      - .env.test
+    ports:
+      - ${ADMINER_PORT}:8080
