@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  postgres_auth_test: #use this name in the adminer login screen server
+  postgres_forum_test: #use this name in the adminer login screen server
     image: postgres:13.1
-    container_name: postgres_auth_test
+    container_name: postgres_forum_test
     restart: "no"
     env_file:
       - .env.test
@@ -14,10 +14,10 @@ services:
     ports:
       - 5801:5432
 
-  adminer_auth_test:
+  adminer_forum_test:
     image: adminer
     depends_on:
-      - postgres_auth_test
+      - postgres_forum_test
     restart: always
     env_file:
       - .env.test

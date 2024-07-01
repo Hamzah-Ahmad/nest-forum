@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  postgres_auth: #use this name in the adminer login screen server
+  postgres_forum: #use this name in the adminer login screen server
     image: postgres:13.1
-    container_name: postgres_auth
+    container_name: postgres_forum
     restart: always
     env_file:
       - .env
@@ -14,15 +14,15 @@ services:
     ports:
       - ${DB_PORT}:5432
     volumes:
-      - starter_auth_data:/var/lib/postgresql/data
+      - forum_data:/var/lib/postgresql/data
 
   adminer:
     image: adminer
     depends_on:
-      - postgres_auth
+      - postgres_forum
     restart: always
     ports:
       - ${ADMINER_PORT}:8080
 
 volumes:
-  starter_auth_data:
+  forum_data:
