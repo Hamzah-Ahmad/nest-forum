@@ -8,11 +8,10 @@ let app: INestApplication;
 let server: any;
 let dataSource: DataSource;
 
-beforeEach(async () => {
+beforeAll(async () => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
-
   app = moduleFixture.createNestApplication();
   app.use(helmet());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));

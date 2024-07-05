@@ -1,9 +1,8 @@
 import * as request from 'supertest';
 import { server, dataSource } from './setup';
-import { DataSource } from 'typeorm';
 import { User } from '../src/user/entities/User.entity';
 
-describe('AppController (e2e)', () => {
+describe('AuthController (e2e)', () => {
   afterEach(async () => {
     await dataSource.createQueryBuilder().delete().from(User).execute();
   });
