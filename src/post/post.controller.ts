@@ -22,6 +22,10 @@ export class PostController {
   getPosts() {
     return this.postService.getPosts();
   }
+  @Get('/:id')
+  getPostById(@Param('id') id: string) {
+    return this.postService.getPostById(id);
+  }
 
   @Post('/')
   createPost(@CurrentUser() user: User, @Body() createPostData: CreatePostDto) {

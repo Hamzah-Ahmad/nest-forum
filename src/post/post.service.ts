@@ -20,6 +20,17 @@ export class PostService {
   getPosts() {
     return this.postRepository.find();
   }
+
+  async getPostById(id: string) {
+    // try-catch to handle "invalid input syntax for type uuid:" error
+    try {
+      const foundPost = await this.postRepository.findOneBy({ id });
+      if (!foundPost) throw new NotFoundException();
+      return foundPost;
+    } catch (err) {
+      throw new NotFoundException();
+    }
+  }
   createPost(userId: string, createPostData: CreatePostDto) {
     let newPost = this.postRepository.create({
       authorId: userId,

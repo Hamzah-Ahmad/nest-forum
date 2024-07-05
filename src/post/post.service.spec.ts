@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { randomUUID } from 'crypto';
 import { UpdatePostDto } from './dtos/updatePost.dto';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 describe('PostService', () => {
   let service: PostService;
@@ -65,10 +66,37 @@ describe('PostService', () => {
     });
   });
 
+  it('should update prevent update if user not author of post', async () => {
+    let postId = randomUUID();
+    let userId = randomUUID();
+    let otherUserId = randomUUID();
+    let foundPost = {
+      id: postId,
+      title: 'Old Title',
+      body: 'Old Body',
+      authorId: userId,
+    };
+    let updatePostData: UpdatePostDto = {
+      title: 'New Title',
+      body: 'New Body',
+    };
+
+    mockPostRepository.findOneBy.mockResolvedValue(foundPost);
+
+    expect(
+      service.updatePost(otherUserId, postId, updatePostData),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
   it('should delete a post successfully', async () => {
     let postId = randomUUID();
     let userId = randomUUID();
-    let foundPost = { id: postId, title: 'Old Title', body: 'Old Body', authorId: userId };
+    let foundPost = {
+      id: postId,
+      title: 'Old Title',
+      body: 'Old Body',
+      authorId: userId,
+    };
 
     mockPostRepository.findOneBy.mockResolvedValue(foundPost);
     mockPostRepository.delete.mockResolvedValue({ affected: 1 });
@@ -77,4 +105,38 @@ describe('PostService', () => {
     expect(response).toEqual({ message: 'Success' });
   });
 
+  it('should find a post by ID successfully', async () => {
+    let postId = randomUUID();
+    let foundPost = {
+      id: postId,
+      title: 'Test Post',
+      body: 'Test Body',
+      authorId: randomUUID(),
+    };
+
+    mockPostRepository.findOneBy.mockResolvedValue(foundPost);
+
+    let response = await service.getPostById(postId);
+    expect(response).toEqual(foundPost);
+  });
+
+  it('should find throw a NotFoundException error if post not found', async () => {
+    let postId = randomUUID();
+
+    mockPostRepository.findOneBy.mockResolvedValue(null);
+
+    await expect(service.getPostById(postId)).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('should throw NotFoundException if post not found by ID', async () => {
+    let postId = randomUUID();
+
+    mockPostRepository.findOneBy.mockResolvedValue(null);
+
+    await expect(service.getPostById(postId)).rejects.toThrow(
+      NotFoundException,
+    );
+  });
 });

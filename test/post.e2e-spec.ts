@@ -11,7 +11,7 @@ describe('PostController (e2e)', () => {
     // Register and login a user to obtain an access token
 
     if (!server || !dataSource) {
-      throw new Error("Server or dataSource is not initialized");
+      throw new Error('Server or dataSource is not initialized');
     }
 
     const registerPayload = {
@@ -24,7 +24,7 @@ describe('PostController (e2e)', () => {
       .post('/auth/register')
       .send(registerPayload)
       .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json')
+      .set('Accept', 'application/json');
 
     accessToken = registerResponse.body.accessToken;
     user = await dataSource
@@ -64,4 +64,189 @@ describe('PostController (e2e)', () => {
         });
       });
   });
+
+  it('should update a post successfully', async () => {
+    const createPostBody = {
+      title: 'Test Post',
+      body: 'Test Body',
+    };
+    const createPostResponse = await request(server)
+      .post('/post')
+      .send(createPostBody)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const postId = createPostResponse.body?.id;
+    const updatePostBody = {
+      title: 'Updated Test Post',
+      body: 'Updated Test Body',
+    };
+    await request(server)
+      .put(`/post/${postId}`)
+      .send(updatePostBody)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toEqual({
+          id: expect.any(String),
+          title: updatePostBody.title,
+          body: updatePostBody.body,
+          authorId: user.id,
+          createdDate: expect.any(String),
+          updatedDate: expect.any(String),
+        });
+      });
+  });
+
+  it('should delete a post successfully', async () => {
+    const createPayload = {
+      title: 'Test Post',
+      body: 'Test Body',
+    };
+
+    const createResponse = await request(server)
+      .post('/post')
+      .send(createPayload)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .expect(201);
+
+    const postId = createResponse.body.id;
+
+    return request(server)
+      .delete(`/post/${postId}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toEqual({ message: 'Success' });
+      });
+  });
+
+  it('should successfully return a post by id', async () => {
+    const createPostBody = {
+      title: 'Test Post',
+      body: 'Test Body',
+    };
+
+    const createPoolResponse = await request(server)
+      .post(`/post`)
+      .send(createPostBody)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const postId = createPoolResponse.body?.id;
+
+    await request(server)
+      .get(`/post/${postId}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toEqual({
+          id: expect.any(String),
+          title: createPostBody.title,
+          body: createPostBody.body,
+          authorId: user.id,
+          createdDate: expect.any(String),
+          updatedDate: expect.any(String),
+        });
+      });
+  });
+
+  // it('should update a post successfully', async () => {
+  //   const createPayload = {
+  //     title: 'Test Post',
+  //     body: 'Test Body',
+  //   };
+
+  //   const createResponse = await request(server)
+  //     .post('/posts')
+  //     .send(createPayload)
+  //     .set('Authorization', `Bearer ${accessToken}`)
+  //     .set('Content-Type', 'application/json')
+  //     .set('Accept', 'application/json')
+  //     .expect(201);
+
+  //   const postId = createResponse.body.id;
+
+  //   const updatePayload = {
+  //     title: 'Updated Title',
+  //     body: 'Updated Body',
+  //   };
+
+  //   return request(server)
+  //     .put(`/posts/${postId}`)
+  //     .send(updatePayload)
+  //     .set('Authorization', `Bearer ${accessToken}`)
+  //     .set('Content-Type', 'application/json')
+  //     .set('Accept', 'application/json')
+  //     .expect(200)
+  //     .expect((res) => {
+  //       expect(res.body).toEqual({
+  //         id: postId,
+  //         title: updatePayload.title,
+  //         body: updatePayload.body,
+  //         authorId: user.id,
+  //       });
+  //     });
+  // });
+
+  // it('should retrieve a post successfully', async () => {
+  //   const createPayload = {
+  //     title: 'Test Post',
+  //     body: 'Test Body',
+  //   };
+
+  //   const createResponse = await request(server)
+  //     .post('/posts')
+  //     .send(createPayload)
+  //     .set('Authorization', `Bearer ${accessToken}`)
+  //     .set('Content-Type', 'application/json')
+  //     .set('Accept', 'application/json')
+  //     .expect(201);
+
+  //   const postId = createResponse.body.id;
+
+  //   return request(server)
+  //     .get(`/posts/${postId}`)
+  //     .set('Authorization', `Bearer ${accessToken}`)
+  //     .expect(200)
+  //     .expect((res) => {
+  //       expect(res.body).toEqual({
+  //         id: postId,
+  //         title: createPayload.title,
+  //         body: createPayload.body,
+  //         authorId: user.id,
+  //       });
+  //     });
+  // });
+
+  // it('should delete a post successfully', async () => {
+  //   const createPayload = {
+  //     title: 'Test Post',
+  //     body: 'Test Body',
+  //   };
+
+  //   const createResponse = await request(server)
+  //     .post('/posts')
+  //     .send(createPayload)
+  //     .set('Authorization', `Bearer ${accessToken}`)
+  //     .set('Content-Type', 'application/json')
+  //     .set('Accept', 'application/json')
+  //     .expect(201);
+
+  //   const postId = createResponse.body.id;
+
+  //   return request(server)
+  //     .delete(`/posts/${postId}`)
+  //     .set('Authorization', `Bearer ${accessToken}`)
+  //     .expect(200)
+  //     .expect((res) => {
+  //       expect(res.body).toEqual({ message: 'Success' });
+  //     });
+  // });
 });
