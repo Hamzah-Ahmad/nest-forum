@@ -31,7 +31,11 @@ export class PostService {
       throw new NotFoundException();
     }
   }
-  createPost(userId: string, createPostData: CreatePostDto) {
+  createPost(
+    userId: string,
+    createPostData: CreatePostDto,
+    images?: Express.Multer.File[],
+  ) {
     let newPost = this.postRepository.create({
       authorId: userId,
       body: createPostData.body,
