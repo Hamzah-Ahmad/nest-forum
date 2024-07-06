@@ -5,9 +5,16 @@ import { CoreModule } from './core/core.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
+import { UtilitiesModule } from './utilities/utilities.module';
 
 @Module({
-  imports: [CoreModule, DatabaseModule, AuthModule, PostModule],
+  imports: [
+    CoreModule,
+    DatabaseModule,
+    AuthModule,
+    PostModule,
+    UtilitiesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

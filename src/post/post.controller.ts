@@ -48,13 +48,11 @@ export class PostController {
         ],
         fileIsRequired: false,
       }),
-      new MaxFileCountPipe(2)
+      new MaxFileCountPipe(2),
     )
     images: Express.Multer.File[],
   ) {
-    console.log('images: ', images);
-    return { message: 'success' };
-    // return this.postService.createPost(user.id, createPostData, images);
+    return this.postService.createPost(user.id, createPostData, images);
   }
 
   @Put(':id')
