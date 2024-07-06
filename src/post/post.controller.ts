@@ -19,7 +19,7 @@ import { PostService } from './post.service';
 import { CreatePostDto } from './dtos/createPost.dto';
 import { UpdatePostDto } from './dtos/updatePost.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { MaxFileCountPipe } from 'src/common/pipes/max-file-count/max-file-count.pipe';
+import { MaxFileCountPipe } from '../common/pipes/max-file-count/max-file-count.pipe';
 
 @Controller('post')
 export class PostController {

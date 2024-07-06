@@ -4,7 +4,7 @@ import {
   POST_IMG_QUEUE,
   POST_IMG_UPLOAD_JOB,
 } from '../../core/queue/queue.constants';
-import { FileService } from 'src/utilities/file/file.service';
+import { FileService } from '../../utilities/file/file.service';
 import { UploadPostImageDto } from '../dtos/uploadPostImage.dto';
 
 @Processor(POST_IMG_QUEUE)

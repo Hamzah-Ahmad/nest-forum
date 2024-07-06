@@ -7,7 +7,7 @@ import { Post } from './entities/post.entity';
 import { BullModule } from '@nestjs/bull';
 import { ImageProducer } from './queue/image.producer';
 import { ImageConsumer } from './queue/image.consumer';
-import { POST_IMG_QUEUE } from 'src/core/queue/queue.constants';
+import { POST_IMG_QUEUE } from '../core/queue/queue.constants';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
 

@@ -50,16 +50,17 @@ export class PostService {
     const post = await this.postRepository.save(newPost);
 
     // Sending images to quque
-    for (const image of images) {
-      await this.imageProducer.uploadPostImage({
-        base64String: this.fileService.bufferToBase64(image.buffer),
-        mimeType: image.mimetype,
-        postId: post.id,
-      });
+    if (images && Array.isArray(images)) {
+      for (const image of images) {
+        await this.imageProducer.uploadPostImage({
+          base64String: this.fileService.bufferToBase64(image.buffer),
+          mimeType: image.mimetype,
+          postId: post.id,
+        });
+      }
     }
 
-    return { message: 'Success' };
-    // return this.postRepository.save(newPost);
+    return this.postRepository.save(newPost);
   }
 
   async updatePost(
