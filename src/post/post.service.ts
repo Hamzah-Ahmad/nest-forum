@@ -9,12 +9,17 @@ import { Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { CreatePostDto } from './dtos/createPost.dto';
 import { UpdatePostDto } from './dtos/updatePost.dto';
+import { ImageProducer } from './queue/image.producer';
+import { FileService } from '../utilities/file/file.service';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
+
+    private readonly imageProducer: ImageProducer,
+    private readonly fileService: FileService,
   ) {}
 
   getPosts() {
@@ -31,12 +36,30 @@ export class PostService {
       throw new NotFoundException();
     }
   }
-  createPost(userId: string, createPostData: CreatePostDto) {
+  async createPost(
+    userId: string,
+    createPostData: CreatePostDto,
+    images?: Express.Multer.File[],
+  ) {
     let newPost = this.postRepository.create({
       authorId: userId,
       body: createPostData.body,
       title: createPostData.title,
     });
+
+    const post = await this.postRepository.save(newPost);
+
+    // Sending images to quque
+    if (images && Array.isArray(images)) {
+      for (const image of images) {
+        await this.imageProducer.uploadPostImage({
+          base64String: this.fileService.bufferToBase64(image.buffer),
+          mimeType: image.mimetype,
+          postId: post.id,
+        });
+      }
+    }
+
     return this.postRepository.save(newPost);
   }
 

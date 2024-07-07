@@ -12,7 +12,15 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - 5801:5432
+      - ${DB_PORT}:5432
+
+  queue_cache_test:
+    image: redis:alpine
+    container_name: queue_cache_test
+    ports:
+      - '${REDIS_PORT}:6379'
+    volumes:
+      - queue_cache_test_data:/data
 
   adminer_forum_test:
     image: adminer
@@ -23,3 +31,6 @@ services:
       - .env.test
     ports:
       - ${ADMINER_PORT}:8080
+
+volumes:
+  queue_cache_test_data:

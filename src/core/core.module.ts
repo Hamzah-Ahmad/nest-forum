@@ -11,6 +11,7 @@ import { LoggerService } from './logger/logger.service';
 import { LoggerMiddleware } from './logger/logger.middleware';
 import { DatabaseModule } from '../database/database.module';
 import { JwtModule } from '@nestjs/jwt';
+import { QueueModule } from './queue/queue.module';
 
 @Global()
 @Module({
@@ -33,6 +34,7 @@ import { JwtModule } from '@nestjs/jwt';
     JwtModule.register({
       global: true,
     }),
+    QueueModule,
   ],
   providers: [LoggerService],
   exports: [LoggerService],
