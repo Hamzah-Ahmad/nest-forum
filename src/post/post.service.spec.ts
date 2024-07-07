@@ -5,9 +5,14 @@ import { Post } from './entities/post.entity';
 import { randomUUID } from 'crypto';
 import { UpdatePostDto } from './dtos/updatePost.dto';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ImageProducer } from './queue/image.producer';
+import { FileService } from '../utilities/file/file.service';
 
 describe('PostService', () => {
   let service: PostService;
+  let mockImageProducer = {
+    uploadPostImage: jest.fn(),
+  };
   let mockPostRepository = {
     create: jest.fn().mockImplementation((dto) => dto),
     save: jest.fn().mockImplementation((dto) => ({ id: randomUUID(), ...dto })),
@@ -22,6 +27,26 @@ describe('PostService', () => {
         {
           provide: getRepositoryToken(Post),
           useValue: mockPostRepository,
+        },
+        {
+          provide: ImageProducer,
+          useValue: mockImageProducer,
+        },
+        {
+          provide: FileService,
+          // useClass: FileService,
+          useValue: {
+            bufferToBase64: jest
+              .fn()
+              .mockImplementation((buffer) =>
+                Buffer.from(buffer).toString('base64'),
+              ),
+            base64ToBuffer: jest
+              .fn()
+              .mockImplementation((base64String) =>
+                Buffer.from(base64String, 'base64'),
+              ),
+          },
         },
       ],
     }).compile();
