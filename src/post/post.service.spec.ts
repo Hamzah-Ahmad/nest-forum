@@ -1,24 +1,53 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PostService } from './post.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Post } from './entities/post.entity';
 import { randomUUID } from 'crypto';
-import { UpdatePostDto } from './dtos/updatePost.dto';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+
+import { PostService } from './post.service';
+import { Post } from './entities/post.entity';
+import { UpdatePostDto } from './dtos/updatePost.dto';
 import { ImageProducer } from './queue/image.producer';
 import { FileService } from '../utilities/file/file.service';
+import { PostImage } from './entities/postImage.entity';
+import { CloudStorageService } from '../services/cloud-storage/cloud-storage.service';
+import { ConfigService } from '@nestjs/config';
+import { LoggerService } from '../core/logger/logger.service';
 
 describe('PostService', () => {
   let service: PostService;
-  let mockImageProducer = {
-    uploadPostImage: jest.fn(),
-  };
+
   let mockPostRepository = {
     create: jest.fn().mockImplementation((dto) => dto),
     save: jest.fn().mockImplementation((dto) => ({ id: randomUUID(), ...dto })),
     findOneBy: jest.fn().mockResolvedValue(null),
     delete: jest.fn().mockResolvedValue({ affected: 1 }),
   };
+  let mockPostImageRepository = {
+    create: jest.fn().mockImplementation((dto) => dto),
+    save: jest.fn().mockImplementation((dto) => ({ id: randomUUID(), ...dto })),
+  };
+
+  // Mocking the repositories manually. Using createMock for the remaining depenencies. We can add functions to required dependencies using DeepMock. Below is manual implementation of those dependencies, for reference.
+  // let mockFileService = {
+  //   bufferToBase64: jest
+  //     .fn()
+  //     .mockImplementation((buffer) => Buffer.from(buffer).toString('base64')),
+  //   base64ToBuffer: jest
+  //     .fn()
+  //     .mockImplementation((base64String) =>
+  //       Buffer.from(base64String, 'base64'),
+  //     ),
+  // };
+  // let mockImageProducer = {
+  //   uploadPostImage: jest.fn(),
+  // };
+  // let mockCloudStorageService = {
+  //   setStrategy: jest.fn(),
+  //   uploadFile: jest.fn().mockResolvedValue('randome string'),
+  // };
+  // let mockConfigService: DeepMocked<ConfigService>; // Deep Mocking config service because its function (configService.get) is being used directly in the code so we need to mock the configSErvice.get function
+  // let mockLoggerService: DeepMocked<LoggerService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,24 +58,32 @@ describe('PostService', () => {
           useValue: mockPostRepository,
         },
         {
+          provide: getRepositoryToken(PostImage),
+          useValue: mockPostImageRepository,
+        },
+        {
           provide: ImageProducer,
-          useValue: mockImageProducer,
+          useValue: createMock<ImageProducer>(),
         },
         {
           provide: FileService,
-          // useClass: FileService,
-          useValue: {
-            bufferToBase64: jest
-              .fn()
-              .mockImplementation((buffer) =>
-                Buffer.from(buffer).toString('base64'),
-              ),
-            base64ToBuffer: jest
-              .fn()
-              .mockImplementation((base64String) =>
-                Buffer.from(base64String, 'base64'),
-              ),
-          },
+          useValue: createMock<FileService>(),
+        },
+        {
+          provide: ImageProducer,
+          useValue: createMock<ImageProducer>(),
+        },
+        {
+          provide: CloudStorageService,
+          useValue: createMock<CloudStorageService>(),
+        },
+        {
+          provide: ConfigService,
+          useValue: createMock<ConfigService>(),
+        },
+        {
+          provide: LoggerService,
+          useValue: createMock<LoggerService>(),
         },
       ],
     }).compile();
