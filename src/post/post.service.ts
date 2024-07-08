@@ -3,6 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
@@ -11,15 +12,24 @@ import { CreatePostDto } from './dtos/createPost.dto';
 import { UpdatePostDto } from './dtos/updatePost.dto';
 import { ImageProducer } from './queue/image.producer';
 import { FileService } from '../utilities/file/file.service';
+import { LoggerService } from '../core/logger/logger.service';
+import { UploadPostImageDto } from './dtos/uploadPostImage.dto';
+import { CloudStorageService } from '../services/cloud-storage/cloud-storage.service';
+import { UploadCareStrategy } from '../services/cloud-storage/strategies/upload-care.strategy';
+import { PostImage } from './entities/postImage.entity';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
-
-    private readonly imageProducer: ImageProducer,
+    @InjectRepository(PostImage)
+    private readonly postImageRepository: Repository<PostImage>,
     private readonly fileService: FileService,
+    private readonly cloudStorageService: CloudStorageService,
+    private readonly configService: ConfigService,
+    private readonly loggerService: LoggerService,
+    private readonly imageProducer: ImageProducer,
   ) {}
 
   getPosts() {
@@ -60,7 +70,7 @@ export class PostService {
       }
     }
 
-    return this.postRepository.save(newPost);
+    return post;
   }
 
   async updatePost(
@@ -93,5 +103,30 @@ export class PostService {
 
     let res = await this.postRepository.delete({ id: postId });
     if (res.affected === 1) return { message: 'Success' };
+  }
+
+  async uploadPostImage(data: UploadPostImageDto) {
+    // const bucketName = this.configService.getOrThrow(`gcp.buckets.images`);
+    const buffer = this.fileService.base64ToBuffer(data.base64String);
+    // The function is expecting the base64 text of the file instead of the actual file.
+    // This is because it is not best practice to use images with redis. Redis is best suited for text.
+    this.cloudStorageService.setStrategy(
+      new UploadCareStrategy(this.configService),
+    );
+    try {
+      const imageUrl = await this.cloudStorageService.uploadFile({
+        buffer,
+        mimeType: data.mimeType,
+      });
+
+      console.log('res here: ', imageUrl);
+      let image = this.postImageRepository.create({
+        postId: data.postId,
+        url: imageUrl,
+      });
+      return await this.postImageRepository.save(image);
+    } catch (err) {
+      this.loggerService.error(err);
+    }
   }
 }

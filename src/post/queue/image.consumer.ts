@@ -1,4 +1,5 @@
 import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
+import { ConfigService } from '@nestjs/config';
 import { Job } from 'bull';
 import {
   POST_IMG_QUEUE,
@@ -6,18 +7,18 @@ import {
 } from '../../core/queue/queue.constants';
 import { FileService } from '../../utilities/file/file.service';
 import { UploadPostImageDto } from '../dtos/uploadPostImage.dto';
+import { CloudStorageService } from '../../services/cloud-storage/cloud-storage.service';
+import { UploadCareStrategy } from '../../services/cloud-storage/strategies/upload-care.strategy';
+import { LoggerService } from '../../core/logger/logger.service';
+import { PostService } from '../post.service';
 
 @Processor(POST_IMG_QUEUE)
 export class ImageConsumer {
-  constructor(private readonly fileService: FileService) {}
+  constructor(private readonly postService: PostService) {}
 
   @Process(POST_IMG_UPLOAD_JOB)
   async processUploadImageJob(job: Job<UploadPostImageDto>) {
-    const buffer = this.fileService.base64ToBuffer(job.data.base64String);
-    // The function is expecting the base64 text of the file instead of the actual file.
-    // This is because it is not best practice to use images with redis. Redis is best suited for text.
-
-    console.log('JOB PROCESS ', buffer);
+    return await this.postService.uploadPostImage(job.data); // returning here to visualize return value in bull dashboard
   }
 
   // Handling error thrown specifically by POST_IMG_UPLOAD_JOB job
