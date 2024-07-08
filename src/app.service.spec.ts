@@ -29,8 +29,9 @@ describe('AppService', () => {
 
   describe('root', () => {
     it('should return "Hello World"', async () => {
-      configService.get.mockReturnValue('development');
-      loggerService.log.mockImplementation((message) => console.log(message)); // TODO: Confirm test
+      // We can set methods either in the it block or in any of the outer describe blocks.
+      configService.get = jest.fn().mockReturnValue('development');
+      loggerService.log = jest.fn();
       const result = await appService.getPublic();
       expect(result).toBe('This is a public route');
     });

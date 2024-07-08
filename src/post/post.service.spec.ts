@@ -16,6 +16,7 @@ import { LoggerService } from '../core/logger/logger.service';
 
 describe('PostService', () => {
   let service: PostService;
+  let cloudStorageService: DeepMocked<CloudStorageService>;
 
   let mockPostRepository = {
     create: jest.fn().mockImplementation((dto) => dto),
@@ -28,7 +29,7 @@ describe('PostService', () => {
     save: jest.fn().mockImplementation((dto) => ({ id: randomUUID(), ...dto })),
   };
 
-  // Mocking the repositories manually. Using createMock for the remaining depenencies. We can add functions to required dependencies using DeepMock. Below is manual implementation of those dependencies, for reference.
+  // Mocking the repositories manually. Using createMock for the remaining depenencies. Using createMock helps in better typing of the dependencies. Below is manual implementation of those dependencies, for reference.
   // let mockFileService = {
   //   bufferToBase64: jest
   //     .fn()
@@ -89,6 +90,7 @@ describe('PostService', () => {
     }).compile();
 
     service = module.get<PostService>(PostService);
+    cloudStorageService = module.get(CloudStorageService);
   });
 
   it('should test creating posts successfully', async () => {
@@ -101,6 +103,29 @@ describe('PostService', () => {
       body: 'Test Body',
       authorId: userId,
     });
+  });
+  it('should create post image and return URL', async () => {
+    const postId = '1';
+    const imgUrl =
+      'https://unsplash.com/photos/a-group-of-stars-in-the-night-sky-3aWG50MWn6U';
+    cloudStorageService.uploadFile.mockResolvedValue(imgUrl);
+
+    const uploadImageResponse = {
+      id: '1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      url: imgUrl,
+      postId,
+    };
+    // Mocking the save function to test the return of the uploadPostImage service function
+    mockPostImageRepository.save.mockResolvedValue(uploadImageResponse);
+
+    const result = await service.uploadPostImage({
+      base64String: 'SGVsbG8gV29ybGQ=',
+      mimeType: 'image/jpg',
+      postId: postId,
+    });
+    expect(result).toBe(uploadImageResponse);
   });
 
   it('should update a post successfully', async () => {

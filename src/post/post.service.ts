@@ -119,7 +119,6 @@ export class PostService {
         mimeType: data.mimeType,
       });
 
-      console.log('res here: ', imageUrl);
       let image = this.postImageRepository.create({
         postId: data.postId,
         url: imageUrl,
