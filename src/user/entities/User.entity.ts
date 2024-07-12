@@ -2,6 +2,7 @@ import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Post } from '../../post/entities/post.entity';
+import { Comment } from '../../comment/entities/comment.entity';
 
 export enum Role {
   User = 'user',
@@ -34,7 +35,9 @@ export class User {
   })
   role: Role;
 
+  @OneToMany(() => Post, (post) => post.author)
+  posts: Post[];
 
-  @OneToMany(() => Post, (posts) => posts.author)
-  posts: Post[]
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: Comment[];
 }

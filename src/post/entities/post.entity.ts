@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { PostImage } from './postImage.entity';
+import { Comment } from '../../comment/entities/comment.entity';
 
 @Entity()
 export class Post {
@@ -35,4 +36,7 @@ export class Post {
 
   @OneToMany(() => PostImage, (postImage) => postImage.post)
   images: PostImage[];
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 }
