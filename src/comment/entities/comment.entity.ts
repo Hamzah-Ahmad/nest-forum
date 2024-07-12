@@ -46,4 +46,6 @@ export class Comment {
 
   @UpdateDateColumn()
   updatedDate: Date;
+
+  replyCount: number;
 }
