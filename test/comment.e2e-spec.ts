@@ -136,15 +136,13 @@ describe('CommentController (e2e)', () => {
     //   .set('Accept', 'application/json');
 
     await request(server)
-      .get(`/comment/${post.id}`)
+      .get(`/comment/post/${post.id}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res) => {
         expect(res.body).toEqual([{ ...commentRes.body, replyCount: 0 }]);
       });
   });
-
-  ////////////////////////////////////////////////////////////////////////
 
   it('should get replies to comments', async () => {
     const commentPayload = {

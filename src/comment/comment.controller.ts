@@ -48,7 +48,7 @@ export class CommentController {
     return this.commentService.getReplies(parentId);
   }
 
-  @Get('/:postId')
+  @Get('/post/:postId')
   getCommentsByPosts(@Param('postId') postId: string) {
     return this.commentService.getCommentsByPosts(postId);
   }
