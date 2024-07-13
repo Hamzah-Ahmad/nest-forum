@@ -24,7 +24,7 @@ export class CommentController {
     @Param('postId') postId: string,
   ) {
     return this.commentService.addCommentToPost(
-      body.commentText,
+      body,
       postId,
       user.id,
     );
@@ -37,7 +37,7 @@ export class CommentController {
     @Param('parentId') parentId: string,
   ) {
     return this.commentService.addReplyToComment(
-      body.commentText,
+      body,
       parentId,
       user.id,
     );

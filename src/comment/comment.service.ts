@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from '../post/entities/post.entity';
 import { Comment } from './entities/comment.entity';
 import { UpdateCommentDto } from './dto/updateComment.dto';
+import { CreateCommentDto } from './dto/createComment.dto';
 
 @Injectable()
 export class CommentService {
@@ -22,12 +23,16 @@ export class CommentService {
     private readonly postRepository: Repository<Post>,
   ) {}
 
-  async addCommentToPost(commentText: string, postId: string, userId: string) {
+  async addCommentToPost(
+    commentData: CreateCommentDto,
+    postId: string,
+    userId: string,
+  ) {
     const foundPost = await this.postRepository.findOneBy({ id: postId });
     if (!foundPost)
       throw new NotFoundException('Post with specified ID was not found');
     const newComment = this.commentRepository.create({
-      commentText,
+      ...commentData,
       postId: postId,
       authorId: userId,
     });
@@ -35,7 +40,7 @@ export class CommentService {
   }
 
   async addReplyToComment(
-    commentText: string,
+    replyBody: CreateCommentDto,
     parentId: string,
     userId: string,
   ) {
@@ -56,7 +61,7 @@ export class CommentService {
       );
     }
     const newReply = this.commentRepository.create({
-      commentText,
+      ...replyBody,
       authorId: userId,
       parentId: parentComment.id, // We are getting parentComment from above so we can use this. We could  also use the parentId we get from the arguments. But using the parentComment ID this way ensures that there is a comment with this ID in the db
       postId: parentComment.postId,
