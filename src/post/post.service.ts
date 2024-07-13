@@ -39,8 +39,8 @@ export class PostService {
   async getPostById(id: string) {
     // try-catch to handle "invalid input syntax for type uuid:" error
     try {
-      const foundPost = await this.postRepository.findOne({
-        where: { id },
+      const foundPost = await this.postRepository.findOneBy({
+        id,
       });
       if (!foundPost) throw new NotFoundException();
       return foundPost;
