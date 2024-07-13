@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { server, dataSource } from './setup';
-import { Post } from '../src/post/entities/post.entity'; // Adjust the path to your Post entity
-import { User } from '../src/user/entities/User.entity'; // Adjust the path to your User entity
+import { Post } from '../src/post/entities/post.entity';
+import { User } from '../src/user/entities/User.entity';
 
 describe('PostController (e2e)', () => {
   let user: User;

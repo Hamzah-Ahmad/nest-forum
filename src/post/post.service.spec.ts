@@ -23,7 +23,6 @@ describe('PostService', () => {
     save: jest.fn().mockImplementation((dto) => ({ id: randomUUID(), ...dto })),
     findOneBy: jest.fn().mockResolvedValue(null),
     delete: jest.fn().mockResolvedValue({ affected: 1 }),
-    remove: jest.fn().mockResolvedValue({ affected: 1 }),
   };
   let mockPostImageRepository = {
     create: jest.fn().mockImplementation((dto) => dto),

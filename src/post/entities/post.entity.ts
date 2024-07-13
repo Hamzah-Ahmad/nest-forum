@@ -28,7 +28,7 @@ export class Post {
   @UpdateDateColumn()
   updatedDate: Date;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts, { onDelete: 'CASCADE' })
   author: User;
 
   @Column()
