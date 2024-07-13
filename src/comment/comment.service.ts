@@ -152,7 +152,8 @@ export class CommentService {
     }
 
     try {
-      await this.commentRepository.remove(comment);
+      const res = await this.commentRepository.delete({id: comment.id});
+      if (res.affected === 1) return { message: 'Success' };
     } catch (err) {
       console.log(err);
       throw new HttpException('Error deleting comment', HttpStatus.BAD_REQUEST);

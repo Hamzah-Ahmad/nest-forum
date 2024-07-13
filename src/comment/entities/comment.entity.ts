@@ -30,15 +30,15 @@ export class Comment {
   @Column()
   postId: string;
 
-  @ManyToOne(() => Comment, (comment) => comment.replies)
+  @ManyToOne(() => Comment, (comment) => comment.replies, {
+    onDelete: 'CASCADE',
+  })
   parent: Comment;
 
   @Column({ nullable: true })
   parentId: string;
 
-  @OneToMany(() => Comment, (comment) => comment.parent, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => Comment, (comment) => comment.parent)
   replies: Comment[];
 
   @CreateDateColumn()
