@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
 import { UtilitiesModule } from './utilities/utilities.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UtilitiesModule } from './utilities/utilities.module';
     AuthModule,
     PostModule,
     UtilitiesModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
